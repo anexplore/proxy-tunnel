@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class FakeHttpProxyServer {
-    private static final Logger LOG = LoggerFactory.getLogger(FakeHttpProxyServer.class);
+public class FakeProxyServer {
+    private static final Logger LOG = LoggerFactory.getLogger(FakeProxyServer.class);
     private final Configuration configuration;
     private volatile EventLoopGroup bossGroup;
     private volatile EventLoopGroup workerGroup;
     private volatile Channel channel;
 
-    public FakeHttpProxyServer(Configuration configuration) {
+    public FakeProxyServer(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -50,9 +50,9 @@ public class FakeHttpProxyServer {
                 b.handler(Constants.DEBUG_LOGGING_HANDLER);
             }
             channel = b.bind(configuration.serverBindLocalAddress(), configuration.serverBindLocalPort()).sync().channel();
-            LOG.info("fake http proxy server success bind on: {}:{}", configuration.serverBindLocalAddress(), configuration.serverBindLocalPort());
+            LOG.info("fake proxy server success bind on: {}:{}", configuration.serverBindLocalAddress(), configuration.serverBindLocalPort());
         } catch (Exception error){
-            LOG.error("fake http proxy server occurs error", error);
+            LOG.error("fake proxy server occurs error", error);
             shutdown();
         }
     }
@@ -70,7 +70,7 @@ public class FakeHttpProxyServer {
             ChannelUtils.closeOnFlush(channel);
             channel = null;
         }
-        LOG.info("fake http server shutdown");
+        LOG.info("fake server shutdown");
     }
 
 }

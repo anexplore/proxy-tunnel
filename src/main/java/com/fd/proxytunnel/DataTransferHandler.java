@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * data transfer between client channel and proxy channel
+ * data transfer between channels
  */
 public final class DataTransferHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(DataTransferHandler.class);

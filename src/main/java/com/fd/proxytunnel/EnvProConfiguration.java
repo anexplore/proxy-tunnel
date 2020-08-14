@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 public class EnvProConfiguration implements Configuration {
 
@@ -30,12 +30,12 @@ public class EnvProConfiguration implements Configuration {
 
     @Override
     public int timeoutToProxyServer() {
-        return Integer.parseInt(getFromEnvOrPro("timeoutToProxyServer", "10000"));
+        return Integer.parseInt(getFromEnvOrPro("timeoutToProxyServer", "30000"));
     }
 
     @Override
     public int connectionTimeoutToProxyServer() {
-        return Integer.parseInt(getFromEnvOrPro("connectionTimeoutToProxyServer", "5000"));
+        return Integer.parseInt(getFromEnvOrPro("connectionTimeoutToProxyServer", "10000"));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class EnvProConfiguration implements Configuration {
 
     @Override
     public int idleTimeoutForClient() {
-        return Integer.parseInt(getFromEnvOrPro("idleTimeoutForClient", "10000"));
+        return Integer.parseInt(getFromEnvOrPro("idleTimeoutForClient", "60000"));
     }
 
     @Override

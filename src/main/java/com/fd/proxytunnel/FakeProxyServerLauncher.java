@@ -1,9 +1,9 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
-public class FakeHttpProxyServerLauncher {
+public class FakeProxyServerLauncher {
 
     public void run() {
-        FakeHttpProxyServer server = new FakeHttpProxyServer(new EnvProConfiguration());
+        FakeProxyServer server = new FakeProxyServer(new EnvProConfiguration());
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 server.shutdown();
@@ -13,6 +13,6 @@ public class FakeHttpProxyServerLauncher {
     }
 
     public static void main(String[] args) {
-        new FakeHttpProxyServerLauncher().run();
+        new FakeProxyServerLauncher().run();
     }
 }

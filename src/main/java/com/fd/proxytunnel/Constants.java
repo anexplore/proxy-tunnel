@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;

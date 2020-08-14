@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

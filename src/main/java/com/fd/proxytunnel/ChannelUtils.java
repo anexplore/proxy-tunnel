@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;

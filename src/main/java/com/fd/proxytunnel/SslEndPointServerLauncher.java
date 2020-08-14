@@ -1,6 +1,7 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 public class SslEndPointServerLauncher {
+
     public void run() {
         SslEndPointServer server = new SslEndPointServer(new EnvProConfiguration());
         Runtime.getRuntime().addShutdownHook(new Thread() {

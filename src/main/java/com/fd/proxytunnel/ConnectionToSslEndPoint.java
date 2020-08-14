@@ -1,21 +1,30 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLException;
+import java.io.File;
+import java.util.concurrent.TimeUnit;
 
-public class ConnectionToProxy implements Connection {
-    public static final Logger LOG = LoggerFactory.getLogger(ConnectionToProxy.class);
+public class ConnectionToSslEndPoint implements Connection {
+    public static final Logger LOG = LoggerFactory.getLogger(ConnectionToSslEndPoint.class);
     private final Bootstrap bootstrap = new Bootstrap();
     private final ConnectionFromClient connectionFromClient;
     private final Configuration configuration;
     private Channel channel;
 
-    public ConnectionToProxy(ConnectionFromClient connectionFromClient, Configuration configuration) {
+    public ConnectionToSslEndPoint(ConnectionFromClient connectionFromClient, Configuration configuration) {
         this.connectionFromClient = connectionFromClient;
         this.configuration = configuration;
     }
@@ -24,13 +33,34 @@ public class ConnectionToProxy implements Connection {
      * Connect to http proxy
      * @return ChannelFuture for tcp connect
      */
-    public ChannelFuture connect() {
+    public ChannelFuture connect() throws SSLException {
+        // build ssl handler
+        SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
+        sslContextBuilder.trustManager(new File(configuration.trustCertFile()))
+                .keyManager(new File(configuration.keyCertChainFile()),
+                        new File(configuration.keyFile()),
+                        configuration.keyPassword());
+        SslContext context = sslContextBuilder.build();
+        SslHandler sslHandler = new SslHandler(context.newEngine(ByteBufAllocator.DEFAULT));
+        sslHandler.setHandshakeTimeout(configuration.connectionTimeoutToProxyServer(), TimeUnit.MILLISECONDS);
+        sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<Channel>>() {
+            @Override
+            public void operationComplete(Future<Channel> future) throws Exception {
+                if (future.isSuccess()) {
+                    LOG.debug("tcp connect to ssl endpoint handshake success, try to send pending messages");
+                    sendPendingMessages(future.get());
+                } else {
+                    LOG.error("tcp connect to ssl endpoint handshake failed", future.cause());
+                }
+            }
+        });
         bootstrap.group(connectionFromClient.channel().eventLoop())
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
+                        pipeline.addLast(Constants.SSL_HANDLER, sslHandler);
                         pipeline.addLast(Constants.MAIN_HANDLER, new DataTransferHandler(connectionFromClient));
                         if (configuration.openNettyLoggingHandler()) {
                             pipeline.addFirst(Constants.NETTY_LOGGING_HANDLER_NAME, Constants.DEBUG_LOGGING_HANDLER);
@@ -41,20 +71,17 @@ public class ConnectionToProxy implements Connection {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.TCP_NODELAY, true);
-        return bootstrap.connect(configuration.proxyHost(), configuration.proxyPort()).addListener(new ChannelFutureListener() {
+        return bootstrap.connect(configuration.sslEndPointHost(), configuration.sslEndPointPort()).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
                     channel = channelFuture.channel();
-                    LOG.debug("tcp connect to proxy success, {}, {}:{}", channel, configuration.proxyHost(), configuration.proxyPort());
+                    LOG.debug("tcp connect to ssl end point success, {}, {}:{}", channel, configuration.sslEndPointHost(), configuration.sslEndPointPort());
                     // may be client channel has closed before tcp connect to proxy success
                     if (connectionFromClient.isConnectionClosed()) {
                         closeConnection();
-                    } else {
-                        // send pending messages
-                        sendPendingMessages(channel);
                     }
                 } else {
-                    LOG.debug("tcp connect to proxy failed, {}:{}", configuration.proxyHost(), configuration.proxyPort());
+                    LOG.debug("tcp connect to ssl end point failed, {}:{}", configuration.sslEndPointHost(), configuration.sslEndPointPort());
                     connectionFromClient.closeConnection();
                 }
             }
@@ -81,12 +108,12 @@ public class ConnectionToProxy implements Connection {
 
     @Override
     public void closeConnection() {
-        LOG.debug("close connection to proxy: {}", channel);
+        LOG.debug("close connection to ssl endpoint: {}", channel);
         ChannelUtils.closeOnFlush(channel);
     }
 
     private void sendPendingMessageFailed(Channel channel) {
-        LOG.debug("send pending message failed");
+        LOG.debug("send pending message failed to ssl endpoint");
         channel.close().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -102,7 +129,7 @@ public class ConnectionToProxy implements Connection {
                 LOG.debug("send pending messages finished with success: {}", channelFuture.isSuccess());
                 if (channelFuture.isSuccess()) {
                     connectionFromClient.channel().pipeline().remove(Constants.MAIN_HANDLER);
-                    connectionFromClient.channel().pipeline().addLast(Constants.MAIN_HANDLER, new DataTransferHandler(ConnectionToProxy.this));
+                    connectionFromClient.channel().pipeline().addLast(Constants.MAIN_HANDLER, new DataTransferHandler(ConnectionToSslEndPoint.this));
                     // open auto read
                     connectionFromClient.enableChannelAutoRead();
                 } else {

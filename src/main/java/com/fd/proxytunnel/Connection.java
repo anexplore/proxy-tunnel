@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -32,7 +32,7 @@ public interface Connection {
      * Connect
      *
      * @return {@link ChannelFuture} channel future
-     * @throws {@link IOException} io exception
+     * @exception  {@link IOException} io exception
      */
     ChannelFuture connect() throws IOException;
 }

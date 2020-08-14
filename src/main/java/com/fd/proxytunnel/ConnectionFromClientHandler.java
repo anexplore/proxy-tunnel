@@ -1,4 +1,4 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -53,6 +53,7 @@ public class ConnectionFromClientHandler extends ChannelInboundHandlerAdapter {
                 connectionOut.connect();
             }
         }
+        // this handler must be remove after connect to ssl endpoint established, because we do not trigger fire channel read
     }
 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
