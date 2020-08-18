@@ -25,6 +25,7 @@ public class ConnectionToProxy implements Connection {
      * @return ChannelFuture for tcp connect
      */
     public ChannelFuture connect() {
+    	// same event loop for thread safety
         bootstrap.group(connectionFromClient.channel().eventLoop())
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {

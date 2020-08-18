@@ -47,13 +47,13 @@ public class ConnectionFromClientHandler extends ChannelInboundHandlerAdapter {
             ConnectionFromClient cf = new ConnectionFromClient(ctx.channel(), pendingMessages, configuration);
             if (forSslEndPoint) {
                 connectionOut = new ConnectionToProxy(cf, configuration);
-                connectionOut.connect();
             } else {
                 connectionOut = new ConnectionToSslEndPoint(cf, configuration);
-                connectionOut.connect();
             }
-        }
-        // this handler must be remove after connect to ssl endpoint established, because we do not trigger fire channel read
+			connectionOut.connect();
+		}
+        // this handler must be remove after connect to ssl endpoint established,
+		// because we do not trigger fire channel read
     }
 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
