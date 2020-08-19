@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class ConnectionToSslEndPoint implements Connection {
@@ -40,6 +41,7 @@ public class ConnectionToSslEndPoint implements Connection {
                 .keyManager(new File(configuration.keyCertChainFile()),
                         new File(configuration.keyFile()),
                         configuration.keyPassword());
+        sslContextBuilder.protocols("TLSv1.3");
         SslContext context = sslContextBuilder.build();
         SslHandler sslHandler = new SslHandler(context.newEngine(ByteBufAllocator.DEFAULT));
         sslHandler.setHandshakeTimeout(configuration.connectionTimeoutToProxyServer(), TimeUnit.MILLISECONDS);

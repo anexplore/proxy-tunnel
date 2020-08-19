@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class SslEndPointServer {
@@ -35,6 +36,7 @@ public class SslEndPointServer {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new File(configuration.keyCertChainFile())
                     , new File(configuration.keyFile()), configuration.keyPassword());
             sslContextBuilder.trustManager(new File(configuration.trustCertFile()));
+            sslContextBuilder.protocols("TLSv1.3");
             SslContext context = sslContextBuilder.build();
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
