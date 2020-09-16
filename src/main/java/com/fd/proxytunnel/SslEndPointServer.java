@@ -36,7 +36,7 @@ public class SslEndPointServer {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new File(configuration.keyCertChainFile())
                     , new File(configuration.keyFile()), configuration.keyPassword());
             sslContextBuilder.trustManager(new File(configuration.trustCertFile()));
-            sslContextBuilder.protocols("TLSv1.3");
+            sslContextBuilder.protocols(configuration.sslProtocol());
             SslContext context = sslContextBuilder.build();
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)

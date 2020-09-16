@@ -18,5 +18,6 @@ public final class Constants {
     public static final String MAIN_HANDLER = "main-handler";
     public static final String SSL_HANDLER = "ssl-handler";
 
+    public static final String DEFAULT_SSL_PROTOCOL = "TLSv1.3";
     public static final LoggingHandler DEBUG_LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
 }

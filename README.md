@@ -33,6 +33,7 @@ Fake Proxy 与 Ssl EndPoint 之间需要进行证书的双向认证，因此需�
 |idleTimeoutForClient|false|60000|idle timeout when no io, ms|
 |connectionTimeoutToProxyServer|false|10000|fake proxy 与 ssl endpoint连接超时时间|
 |openNettyLoggingHandler|false|0|是否开启netty LoggingHandler, 1打开|
+|sslProtocol|fals|TLSv1.3|tls 协议版本 TLSv1.3 TLSv1.2|
 |sslEndPointHost|fake proxy必须配置|-|ssl endpoint地址|
 |sslEndPointPort|fake proxy必须配置|-|ssl endpoint端口|
 |keyCertChainFile|必须|-|fake proxy或者 ssl endpoint的证书|

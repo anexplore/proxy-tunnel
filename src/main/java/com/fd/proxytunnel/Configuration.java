@@ -63,6 +63,11 @@ public interface Configuration {
     int proxyPort();
 
     /**
+     * @return ssl protocol version ,eg TLSv1.3 TLSv1.2
+     */
+    String sslProtocol();
+
+    /**
      * @return ssl end point host
      */
     String sslEndPointHost();

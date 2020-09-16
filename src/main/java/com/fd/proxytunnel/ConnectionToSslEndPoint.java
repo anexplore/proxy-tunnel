@@ -41,7 +41,7 @@ public class ConnectionToSslEndPoint implements Connection {
                 .keyManager(new File(configuration.keyCertChainFile()),
                         new File(configuration.keyFile()),
                         configuration.keyPassword());
-        sslContextBuilder.protocols("TLSv1.3");
+        sslContextBuilder.protocols(configuration.sslProtocol());
         SslContext context = sslContextBuilder.build();
         SslHandler sslHandler = new SslHandler(context.newEngine(ByteBufAllocator.DEFAULT));
         sslHandler.setHandshakeTimeout(configuration.connectionTimeoutToProxyServer(), TimeUnit.MILLISECONDS);

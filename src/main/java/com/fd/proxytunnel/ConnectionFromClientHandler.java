@@ -31,11 +31,13 @@ public class ConnectionFromClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        LOG.info("connection from client active: {}", ctx.channel().remoteAddress());
         tryToReadIfNeeded(ctx);
         ctx.fireChannelActive();
     }
 
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        LOG.info("connection from client inactive: {}", ctx.channel().remoteAddress());
         closeChannelConnection(ctx);
     }
 

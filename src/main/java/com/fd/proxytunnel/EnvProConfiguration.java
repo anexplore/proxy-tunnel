@@ -79,6 +79,11 @@ public class EnvProConfiguration implements Configuration {
     }
 
     @Override
+    public String sslProtocol() {
+        return getFromEnvOrPro("sslProtocol", Constants.DEFAULT_SSL_PROTOCOL);
+    }
+
+    @Override
     public String sslEndPointHost() {
         return getFromEnvOrPro("sslEndPointHost", null);
     }
