@@ -1,9 +1,5 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
-import com.fd.proxytunnel.Configuration;
-import com.fd.proxytunnel.ConnectionFromClient;
-import com.fd.proxytunnel.ConnectionToProxy;
-import com.fd.proxytunnel.EnvProConfiguration;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.junit.Test;

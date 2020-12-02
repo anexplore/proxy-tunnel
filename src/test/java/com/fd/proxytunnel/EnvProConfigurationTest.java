@@ -1,6 +1,5 @@
-package com.fd.httpproxytunnel;
+package com.fd.proxytunnel;
 
-import com.fd.proxytunnel.EnvProConfiguration;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
