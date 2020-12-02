@@ -70,7 +70,7 @@ public class ConnectionFromClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void closeChannelConnection(ChannelHandlerContext ctx) {
-        LOG.debug("close client connection: {}", ctx.channel().remoteAddress());
+        LOG.info("close client connection: {}", ctx.channel().remoteAddress());
         ChannelUtils.closeOnFlush(ctx.channel());
         if (connectionOut != null) {
             connectionOut.closeConnection();

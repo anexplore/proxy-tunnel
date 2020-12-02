@@ -16,6 +16,8 @@ public class ConnectionToProxy implements Connection {
     private Channel channel;
 
     public ConnectionToProxy(ConnectionFromClient connectionFromClient, Configuration configuration) {
+        checkNotNull("connection from client", connectionFromClient);
+        checkNotNull("configuration", configuration);
         this.connectionFromClient = connectionFromClient;
         this.configuration = configuration;
     }
@@ -46,7 +48,7 @@ public class ConnectionToProxy implements Connection {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
                     channel = channelFuture.channel();
-                    LOG.debug("tcp connect to proxy success, {}, {}:{}", channel, configuration.proxyHost(), configuration.proxyPort());
+                    LOG.info("tcp connect to proxy success, {}, {}:{}", channel, configuration.proxyHost(), configuration.proxyPort());
                     // may be client channel has closed before tcp connect to proxy success
                     if (connectionFromClient.isConnectionClosed()) {
                         closeConnection();
@@ -55,7 +57,7 @@ public class ConnectionToProxy implements Connection {
                         sendPendingMessages(channel);
                     }
                 } else {
-                    LOG.debug("tcp connect to proxy failed, {}:{}", configuration.proxyHost(), configuration.proxyPort());
+                    LOG.info("tcp connect to proxy failed, {}:{}", configuration.proxyHost(), configuration.proxyPort());
                     connectionFromClient.closeConnection();
                 }
             }
@@ -82,7 +84,7 @@ public class ConnectionToProxy implements Connection {
 
     @Override
     public void closeConnection() {
-        LOG.debug("close connection to proxy: {}", channel);
+        LOG.info("close connection to proxy: {}", channel);
         ChannelUtils.closeOnFlush(channel);
     }
 

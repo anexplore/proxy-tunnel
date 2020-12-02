@@ -103,8 +103,6 @@ docker run -d --rm -e DOCKER_MODE=1 -e serverBindLocalAddress=0.0.0.0 -e proxyHo
 
 
 ### 没有做的
-* test测试用例未上传
-* browser与fake proxy，fake proxy 与 ssl endpoint ， ssl endpoint 与 real proxy之间，没有对整条链路上各个节点进行流量发送控制，在各个网络传输速度不对等的情况下可能会有问题
 * fake proxy 与 ssl endpoint之间的流量可以加以混淆, 可自己动手实现encoder/decoder
 
 

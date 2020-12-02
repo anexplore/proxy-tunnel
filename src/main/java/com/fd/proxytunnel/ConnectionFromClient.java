@@ -17,6 +17,9 @@ public class ConnectionFromClient implements Connection {
     private final Configuration configuration;
 
     public ConnectionFromClient(Channel channel, List<Object> pendingMessages, Configuration configuration) {
+        checkNotNull("channel", channel);
+        checkNotNull("pending message", pendingMessages);
+        checkNotNull("configuration", configuration);
         this.channel = channel;
         this.pendingMessages = pendingMessages;
         this.configuration = configuration;
@@ -36,10 +39,17 @@ public class ConnectionFromClient implements Connection {
     }
 
     /**
-     * Enable Channel AutoRead
+     * enable channel auto read
      */
     public void enableChannelAutoRead() {
         channel.config().setAutoRead(true);
+    }
+
+    /**
+     * Disable channel auto read
+     */
+    public void disableChannelAutoRead() {
+        channel.config().setAutoRead(false);
     }
 
     /**
@@ -68,7 +78,7 @@ public class ConnectionFromClient implements Connection {
 
     @Override
     public void closeConnection() {
-        LOG.debug("close connection from client: {}", channel);
+        LOG.info("close connection from client: {}", channel);
         ChannelUtils.closeOnFlush(channel);
     }
 }

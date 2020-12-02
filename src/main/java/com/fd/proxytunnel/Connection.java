@@ -35,4 +35,10 @@ public interface Connection {
      * @exception  {@link IOException} io exception
      */
     ChannelFuture connect() throws IOException;
+
+    default void checkNotNull(String message, Object object) {
+        if (object == null) {
+            throw new NullPointerException(message + " is null");
+        }
+    }
 }

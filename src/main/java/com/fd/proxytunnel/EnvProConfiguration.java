@@ -25,7 +25,7 @@ public class EnvProConfiguration implements Configuration {
 
     @Override
     public boolean channelAutoRead() {
-        return Integer.parseInt(getFromEnvOrPro("channelAutoRead", "0")) == 1;
+        return false;
     }
 
     @Override

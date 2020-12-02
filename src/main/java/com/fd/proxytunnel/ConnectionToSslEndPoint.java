@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class ConnectionToSslEndPoint implements Connection {
@@ -49,7 +48,7 @@ public class ConnectionToSslEndPoint implements Connection {
             @Override
             public void operationComplete(Future<Channel> future) throws Exception {
                 if (future.isSuccess()) {
-                    LOG.debug("tcp connect to ssl endpoint handshake success, try to send pending messages");
+                    LOG.info("tcp connect to ssl endpoint handshake success, try to send pending messages");
                     sendPendingMessages(future.get());
                 } else {
                     LOG.error("tcp connect to ssl endpoint handshake failed", future.cause());
@@ -77,13 +76,13 @@ public class ConnectionToSslEndPoint implements Connection {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
                     channel = channelFuture.channel();
-                    LOG.debug("tcp connect to ssl end point success, {}, {}:{}", channel, configuration.sslEndPointHost(), configuration.sslEndPointPort());
+                    LOG.info("tcp connect to ssl end point success, {}, {}:{}", channel, configuration.sslEndPointHost(), configuration.sslEndPointPort());
                     // may be client channel has closed before tcp connect to proxy success
                     if (connectionFromClient.isConnectionClosed()) {
                         closeConnection();
                     }
                 } else {
-                    LOG.debug("tcp connect to ssl end point failed, {}:{}", configuration.sslEndPointHost(), configuration.sslEndPointPort());
+                    LOG.info("tcp connect to ssl end point failed, {}:{}", configuration.sslEndPointHost(), configuration.sslEndPointPort());
                     connectionFromClient.closeConnection();
                 }
             }
@@ -110,7 +109,7 @@ public class ConnectionToSslEndPoint implements Connection {
 
     @Override
     public void closeConnection() {
-        LOG.debug("close connection to ssl endpoint: {}", channel);
+        LOG.info("close connection to ssl endpoint: {}", channel);
         ChannelUtils.closeOnFlush(channel);
     }
 
