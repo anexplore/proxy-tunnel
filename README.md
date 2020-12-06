@@ -7,10 +7,24 @@
 
 Fake Proxy 与 Ssl Endpoint 之间使用SSL的双向认证。
 
-* Browser: 想要使用Real Proxy的客户端
-* Fake Proxy: 假代理，这个代理只是接收browser(其它使用代理的客户端)的TCP流量，并将流量加密转发给ssl endpoint或者将ssl endpoint的加密流量解密传递给brwoser
-* Ssl Endpoint: 流量转发中继，其负责接收fake proxy的加密流量解密后传送给最终Real Proxy 或者将real proxy的流量加密后传送给Fake proxy
-* Real Proxy: 最终要使用的Proxy
+* Browser
+
+   想要使用Real Proxy的客户端
+
+* Fake Proxy: 假代理
+  
+   这个代理只是接收browser(其它使用代理的客户端)的TCP流量，并将流量加密转发给ssl endpoint或者将ssl endpoint的加密流量解密传递给browser
+   
+   Browser 与 Fake Proxy之间依赖于可信的内部网络
+   
+* Ssl Endpoint
+   
+   流量转发中继，其负责接收fake proxy的加密流量解密后传送给最终Real Proxy 或者将real proxy的流量加密后传送给Fake proxy
+
+* Real Proxy
+
+   最终要使用的Proxy
+
 
 ## 使用说明
 ### Fake Proxy 与 Ssl Endpoint证书
@@ -33,7 +47,7 @@ Fake Proxy 与 Ssl EndPoint 之间需要进行证书的双向认证，因此需�
 |idleTimeoutForClient|false|60000|idle timeout when no io, ms|
 |connectionTimeoutToProxyServer|false|10000|fake proxy 与 ssl endpoint连接超时时间|
 |openNettyLoggingHandler|false|0|是否开启netty LoggingHandler, 1打开|
-|sslProtocol|fals|TLSv1.3|tls 协议版本 TLSv1.3 TLSv1.2|
+|sslProtocol|false|TLSv1.3|tls 协议版本 TLSv1.3 TLSv1.2|
 |sslEndPointHost|fake proxy必须配置|-|ssl endpoint地址|
 |sslEndPointPort|fake proxy必须配置|-|ssl endpoint端口|
 |keyCertChainFile|必须|-|fake proxy或者 ssl endpoint的证书|

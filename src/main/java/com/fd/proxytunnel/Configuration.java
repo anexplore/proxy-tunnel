@@ -13,14 +13,19 @@ public interface Configuration {
     boolean channelAutoRead();
 
     /**
-     * @return ms, io timeout to proxy server
+     * @return ms, idle timeout for client when no read/write occurs
      */
-    int timeoutToProxyServer();
+    int idleTimeoutForClient();
+
+    /**
+     * @return ms, idle timeout for remote server when no read/write occurs
+     */
+    int idleTimeoutForRemoteServer();
 
     /**
      * @return ms, connect timeout to  proxy server
      */
-    int connectionTimeoutToProxyServer();
+    int connectionTimeoutToRemoteServer();
 
     /**
      * @return main event group number to accept client request
@@ -36,11 +41,6 @@ public interface Configuration {
      * @return max connect backlog for tcp connect
      */
     int maxConnectionBacklog();
-
-    /**
-     * @return ms, idle timeout for client when no read/write occurs
-     */
-    int idleTimeoutForClient();
 
     /**
      * @return server bind local address, eg: 0.0.0.0

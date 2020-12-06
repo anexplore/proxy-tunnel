@@ -44,8 +44,8 @@ public class SslEndPointServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline pipeline = socketChannel.pipeline();
-                            pipeline.addLast(new IdleStateHandler(configuration.idleTimeoutForClient(),
-                                    configuration.idleTimeoutForClient(), configuration.idleTimeoutForClient(), TimeUnit.MILLISECONDS));
+                            pipeline.addLast(new IdleStateHandler(0, 0,
+                                    configuration.idleTimeoutForClient(), TimeUnit.MILLISECONDS));
                             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(context.newEngine(ByteBufAllocator.DEFAULT)));
                             pipeline.addLast(new StateHandler());
                             pipeline.addLast(Constants.MAIN_HANDLER, new ConnectionFromClientHandler(configuration, true));

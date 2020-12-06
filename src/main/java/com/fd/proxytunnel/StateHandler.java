@@ -14,7 +14,7 @@ public class StateHandler extends ChannelInboundHandlerAdapter {
 
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            LOG.debug("channel {} becomes idle, close it", ctx.channel());
+            LOG.info("channel {} becomes idle, close it", ctx.channel());
             ctx.close();
         }
     }

@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class ConnectionToSslEndPoint implements Connection {
         sslContextBuilder.protocols(configuration.sslProtocol());
         SslContext context = sslContextBuilder.build();
         SslHandler sslHandler = new SslHandler(context.newEngine(ByteBufAllocator.DEFAULT));
-        sslHandler.setHandshakeTimeout(configuration.connectionTimeoutToProxyServer(), TimeUnit.MILLISECONDS);
+        sslHandler.setHandshakeTimeout(configuration.connectionTimeoutToRemoteServer(), TimeUnit.MILLISECONDS);
         sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<Channel>>() {
             @Override
             public void operationComplete(Future<Channel> future) throws Exception {
@@ -61,6 +62,9 @@ public class ConnectionToSslEndPoint implements Connection {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
+                        pipeline.addLast(new IdleStateHandler(0, 0,
+                                configuration.idleTimeoutForRemoteServer(), TimeUnit.MILLISECONDS));
+                        pipeline.addLast(new StateHandler());
                         pipeline.addLast(Constants.SSL_HANDLER, sslHandler);
                         pipeline.addLast(Constants.MAIN_HANDLER, new DataTransferHandler(connectionFromClient));
                         if (configuration.openNettyLoggingHandler()) {
@@ -68,7 +72,7 @@ public class ConnectionToSslEndPoint implements Connection {
                         }
                     }
                 })
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.connectionTimeoutToProxyServer())
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.connectionTimeoutToRemoteServer())
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.TCP_NODELAY, true);

@@ -4,8 +4,11 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 
 public class ConnectionToProxy implements Connection {
@@ -34,13 +37,16 @@ public class ConnectionToProxy implements Connection {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
+                        pipeline.addLast(new IdleStateHandler(0, 0,
+                                configuration.idleTimeoutForRemoteServer(), TimeUnit.MILLISECONDS));
+                        pipeline.addLast(new StateHandler());
                         pipeline.addLast(Constants.MAIN_HANDLER, new DataTransferHandler(connectionFromClient));
                         if (configuration.openNettyLoggingHandler()) {
                             pipeline.addFirst(Constants.NETTY_LOGGING_HANDLER_NAME, Constants.DEBUG_LOGGING_HANDLER);
                         }
                     }
                 })
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.connectionTimeoutToProxyServer())
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.connectionTimeoutToRemoteServer())
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.TCP_NODELAY, true);

@@ -35,6 +35,7 @@ public final class DataTransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        LOG.info("channel {} closed", ctx.channel());
         relayConnection.closeConnection();
     }
 

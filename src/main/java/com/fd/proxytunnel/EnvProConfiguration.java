@@ -29,12 +29,7 @@ public class EnvProConfiguration implements Configuration {
     }
 
     @Override
-    public int timeoutToProxyServer() {
-        return Integer.parseInt(getFromEnvOrPro("timeoutToProxyServer", "30000"));
-    }
-
-    @Override
-    public int connectionTimeoutToProxyServer() {
+    public int connectionTimeoutToRemoteServer() {
         return Integer.parseInt(getFromEnvOrPro("connectionTimeoutToProxyServer", "10000"));
     }
 
@@ -56,6 +51,11 @@ public class EnvProConfiguration implements Configuration {
     @Override
     public int idleTimeoutForClient() {
         return Integer.parseInt(getFromEnvOrPro("idleTimeoutForClient", "60000"));
+    }
+
+    @Override
+    public int idleTimeoutForRemoteServer() {
+        return 0;
     }
 
     @Override
