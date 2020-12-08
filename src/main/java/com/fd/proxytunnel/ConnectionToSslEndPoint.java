@@ -49,10 +49,11 @@ public class ConnectionToSslEndPoint implements Connection {
             @Override
             public void operationComplete(Future<Channel> future) throws Exception {
                 if (future.isSuccess()) {
-                    LOG.info("tcp connect to ssl endpoint handshake success, try to send pending messages");
+                    LOG.info("tcp connect to ssl endpoint handshake success, try to send pending messages. {}",
+                            future.get());
                     sendPendingMessages(future.get());
                 } else {
-                    LOG.error("tcp connect to ssl endpoint handshake failed", future.cause());
+                    LOG.error("tcp connect to ssl endpoint handshake failed. {}", future.get(), future.cause());
                 }
             }
         });
@@ -118,7 +119,7 @@ public class ConnectionToSslEndPoint implements Connection {
     }
 
     private void sendPendingMessageFailed(Channel channel) {
-        LOG.debug("send pending message failed to ssl endpoint");
+        LOG.debug("send pending message failed to ssl endpoint, {}", channel);
         channel.close().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
