@@ -20,4 +20,10 @@ public final class Constants {
 
     public static final String DEFAULT_SSL_PROTOCOL = "TLSv1.3";
     public static final LoggingHandler DEBUG_LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
+    public static final boolean LINUX;
+
+    static {
+        LINUX = System.getProperty("os.name", "").toLowerCase().startsWith("linux");
+    }
+
 }

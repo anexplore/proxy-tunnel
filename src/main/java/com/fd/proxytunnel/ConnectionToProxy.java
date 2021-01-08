@@ -2,8 +2,8 @@ package com.fd.proxytunnel;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class ConnectionToProxy implements Connection {
     public ChannelFuture connect() {
     	// same event loop for thread safety
         bootstrap.group(connectionFromClient.channel().eventLoop())
-                .channel(NioSocketChannel.class)
+                .channel(ChannelUtils.defaultSocketChannelClass())
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -50,6 +50,12 @@ public class ConnectionToProxy implements Connection {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.TCP_NODELAY, true);
+        if (Constants.LINUX) {
+            bootstrap.option(EpollChannelOption.TCP_QUICKACK, true);
+        }
+        if (Constants.LINUX && configuration.openTcpFastOpenConnect()) {
+            bootstrap.option(EpollChannelOption.TCP_FASTOPEN_CONNECT, true);
+        }
         return bootstrap.connect(configuration.proxyHost(), configuration.proxyPort()).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
