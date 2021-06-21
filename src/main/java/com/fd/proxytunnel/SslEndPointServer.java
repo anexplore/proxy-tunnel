@@ -56,7 +56,7 @@ public class SslEndPointServer {
                     .option(ChannelOption.SO_REUSEADDR, true)
                     .option(ChannelOption.SO_BACKLOG, configuration.maxConnectionBacklog())
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.AUTO_READ, configuration.channelAutoRead());
+                    .childOption(ChannelOption.AUTO_READ, false);
             if (Constants.LINUX) {
                 b.childOption(EpollChannelOption.TCP_QUICKACK, true);
             }

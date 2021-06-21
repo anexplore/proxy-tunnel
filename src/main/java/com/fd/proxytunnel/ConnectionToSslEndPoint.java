@@ -76,7 +76,8 @@ public class ConnectionToSslEndPoint implements Connection {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.connectionTimeoutToRemoteServer())
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
-                .option(ChannelOption.TCP_NODELAY, true);
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.AUTO_READ, false);
         if (Constants.LINUX) {
             bootstrap.option(EpollChannelOption.TCP_QUICKACK, true);
         }
@@ -142,8 +143,8 @@ public class ConnectionToSslEndPoint implements Connection {
                 if (channelFuture.isSuccess()) {
                     connectionFromClient.channel().pipeline().remove(Constants.MAIN_HANDLER);
                     connectionFromClient.channel().pipeline().addLast(Constants.MAIN_HANDLER, new DataTransferHandler(ConnectionToSslEndPoint.this));
-                    // open auto read
-                    connectionFromClient.enableChannelAutoRead();
+                    // try to read more msg
+                    connectionFromClient.channel().read();
                 } else {
                     sendPendingMessageFailed(channel);
                 }

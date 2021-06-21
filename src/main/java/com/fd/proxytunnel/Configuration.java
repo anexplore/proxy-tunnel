@@ -10,6 +10,7 @@ public interface Configuration {
     /**
      * @return true if set channel option AUTO_READ=true
      */
+    @Deprecated
     boolean channelAutoRead();
 
     /**

@@ -49,7 +49,8 @@ public class ConnectionToProxy implements Connection {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, configuration.connectionTimeoutToRemoteServer())
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
-                .option(ChannelOption.TCP_NODELAY, true);
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.AUTO_READ, false);
         if (Constants.LINUX) {
             bootstrap.option(EpollChannelOption.TCP_QUICKACK, true);
         }
@@ -119,7 +120,7 @@ public class ConnectionToProxy implements Connection {
                     connectionFromClient.channel().pipeline().remove(Constants.MAIN_HANDLER);
                     connectionFromClient.channel().pipeline().addLast(Constants.MAIN_HANDLER, new DataTransferHandler(ConnectionToProxy.this));
                     // open auto read
-                    connectionFromClient.enableChannelAutoRead();
+                    connectionFromClient.channel().read();
                 } else {
                     sendPendingMessageFailed(channel);
                 }
