@@ -1,5 +1,10 @@
-package com.fd.proxytunnel;
+package com.fd.proxytunnel.handlers;
 
+import com.fd.proxytunnel.ChannelUtils;
+import com.fd.proxytunnel.Configuration;
+import com.fd.proxytunnel.Connection;
+import com.fd.proxytunnel.Constants;
+import com.fd.proxytunnel.mapping.Address;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
@@ -23,11 +28,13 @@ public class ConnectionToSslEndPoint implements Connection {
     private final Bootstrap bootstrap = new Bootstrap();
     private final ConnectionFromClient connectionFromClient;
     private final Configuration configuration;
+    private final Address endpointAddress;
     private Channel channel;
 
-    public ConnectionToSslEndPoint(ConnectionFromClient connectionFromClient, Configuration configuration) {
+    public ConnectionToSslEndPoint(ConnectionFromClient connectionFromClient, Configuration configuration, Address endpointAddress) {
         this.connectionFromClient = connectionFromClient;
         this.configuration = configuration;
+        this.endpointAddress = endpointAddress;
     }
 
     /**
@@ -82,19 +89,19 @@ public class ConnectionToSslEndPoint implements Connection {
             bootstrap.option(EpollChannelOption.TCP_QUICKACK, true);
         }
         if (Constants.LINUX && configuration.openTcpFastOpenConnect()) {
-            bootstrap.option(EpollChannelOption.TCP_FASTOPEN_CONNECT, true);
+            bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
         }
-        return bootstrap.connect(configuration.sslEndPointHost(), configuration.sslEndPointPort()).addListener(new ChannelFutureListener() {
+        return bootstrap.connect(endpointAddress.host, endpointAddress.port).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
                     channel = channelFuture.channel();
-                    LOG.info("tcp connect to ssl end point success, {}, {}:{}", channel, configuration.sslEndPointHost(), configuration.sslEndPointPort());
+                    LOG.info("tcp connect to ssl end point success, {}, {}:{}", channel, endpointAddress.host, endpointAddress.port);
                     // may be client channel has closed before tcp connect to proxy success
                     if (connectionFromClient.isConnectionClosed()) {
                         closeConnection();
                     }
                 } else {
-                    LOG.info("tcp connect to ssl end point failed, {}:{}", configuration.sslEndPointHost(), configuration.sslEndPointPort());
+                    LOG.info("tcp connect to ssl end point failed, {}:{}", endpointAddress.host, endpointAddress.port);
                     connectionFromClient.closeConnection();
                 }
             }

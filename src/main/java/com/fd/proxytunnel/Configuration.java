@@ -1,5 +1,7 @@
 package com.fd.proxytunnel;
 
+import com.fd.proxytunnel.mapping.MappingHolder;
+
 public interface Configuration {
 
     /**
@@ -59,39 +61,19 @@ public interface Configuration {
     int maxConnectionBacklog();
 
     /**
-     * @return server bind local address, eg: 0.0.0.0
+     * @return tunnel mapping file path
      */
-    String serverBindLocalAddress();
+    String tunnelMappingFilePath();
 
     /**
-     * @return server bind local port, eg: 1080
+     * @return instance of {@link MappingHolder} which has each side's host and port
      */
-    int serverBindLocalPort();
-
-    /**
-     * @return proxy host
-     */
-    String proxyHost();
-
-    /**
-     * @return proxy port
-     */
-    int proxyPort();
+    MappingHolder mappingHolder();
 
     /**
      * @return ssl protocol version ,eg TLSv1.3 TLSv1.2
      */
     String sslProtocol();
-
-    /**
-     * @return ssl end point host
-     */
-    String sslEndPointHost();
-
-    /**
-     * @return ssl endpoint port
-     */
-    int sslEndPointPort();
 
     /**
      * @return key cert chain file

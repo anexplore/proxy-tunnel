@@ -1,5 +1,6 @@
-package com.fd.proxytunnel;
+package com.fd.proxytunnel.handlers;
 
+import com.fd.proxytunnel.Connection;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

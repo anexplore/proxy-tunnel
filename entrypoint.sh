@@ -3,11 +3,11 @@ CMD=$1
 
 case $CMD in 
     fakeserver)
-        ./run_fakeserver.sh 
+      exec  ./run_fakeserver.sh
     ;;
     
     sslendpoint)
-        ./run_sslendpoint.sh
+      exec ./run_sslendpoint.sh
     ;;
     *)
         exec $@

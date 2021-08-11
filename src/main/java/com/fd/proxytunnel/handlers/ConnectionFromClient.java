@@ -1,5 +1,8 @@
-package com.fd.proxytunnel;
+package com.fd.proxytunnel.handlers;
 
+import com.fd.proxytunnel.ChannelUtils;
+import com.fd.proxytunnel.Configuration;
+import com.fd.proxytunnel.Connection;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
@@ -17,9 +20,6 @@ public class ConnectionFromClient implements Connection {
     private final Configuration configuration;
 
     public ConnectionFromClient(Channel channel, List<Object> pendingMessages, Configuration configuration) {
-        checkNotNull("channel", channel);
-        checkNotNull("pending message", pendingMessages);
-        checkNotNull("configuration", configuration);
         this.channel = channel;
         this.pendingMessages = pendingMessages;
         this.configuration = configuration;

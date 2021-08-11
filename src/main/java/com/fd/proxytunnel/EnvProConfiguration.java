@@ -1,5 +1,7 @@
 package com.fd.proxytunnel;
 
+import com.fd.proxytunnel.mapping.MappingHolder;
+
 public class EnvProConfiguration implements Configuration {
 
     public EnvProConfiguration() {
@@ -10,7 +12,7 @@ public class EnvProConfiguration implements Configuration {
      * @param key key
      * @return value or {@code defaultValue} if pro is empty
      */
-    public static String getFromEnvOrPro(String key, String defaultValue) {
+    public static String getFromPropertyOrEnv(String key, String defaultValue) {
         String pro = System.getProperty(key);
         if (isNullOrEmpty(pro)) {
             pro = System.getenv(key);
@@ -20,7 +22,7 @@ public class EnvProConfiguration implements Configuration {
 
     @Override
     public boolean openNettyLoggingHandler() {
-        return Integer.parseInt(getFromEnvOrPro("openNettyLoggingHandler", "0")) == 1;
+        return Integer.parseInt(getFromPropertyOrEnv("openNettyLoggingHandler", "0")) == 1;
     }
 
     @Override
@@ -30,22 +32,22 @@ public class EnvProConfiguration implements Configuration {
 
     @Override
     public int connectionTimeoutToRemoteServer() {
-        return Integer.parseInt(getFromEnvOrPro("connectionTimeoutToProxyServer", "10000"));
+        return Integer.parseInt(getFromPropertyOrEnv("connectionTimeoutToProxyServer", "10000"));
     }
 
     @Override
     public boolean openTcpFastOpen() {
-        return Integer.parseInt(getFromEnvOrPro("openTcpFastOpen", "0")) == 1;
+        return Integer.parseInt(getFromPropertyOrEnv("openTcpFastOpen", "0")) == 1;
     }
 
     @Override
     public int tcpFastOpenBacklog() {
-        return Integer.parseInt(getFromEnvOrPro("tcpFastOpenBacklog", "256"));
+        return Integer.parseInt(getFromPropertyOrEnv("tcpFastOpenBacklog", "256"));
     }
 
     @Override
     public boolean openTcpFastOpenConnect() {
-        return Integer.parseInt(getFromEnvOrPro("openTcpFastOpenConnect", "0")) == 1;
+        return Integer.parseInt(getFromPropertyOrEnv("openTcpFastOpenConnect", "0")) == 1;
     }
 
     @Override
@@ -55,17 +57,32 @@ public class EnvProConfiguration implements Configuration {
 
     @Override
     public int workerEventGroupNumber() {
-        return Integer.parseInt(getFromEnvOrPro("workerEventGroupNumber", "" + Runtime.getRuntime().availableProcessors()));
+        return Integer.parseInt(getFromPropertyOrEnv("workerEventGroupNumber", "" + Runtime.getRuntime().availableProcessors()));
     }
 
     @Override
     public int maxConnectionBacklog() {
-        return Integer.parseInt(getFromEnvOrPro("maxConnectionBacklog", "1000"));
+        return Integer.parseInt(getFromPropertyOrEnv("maxConnectionBacklog", "1000"));
+    }
+
+    @Override
+    public String tunnelMappingFilePath() {
+        return getFromPropertyOrEnv("mappingFile", "mapping.txt");
+    }
+
+    @Override
+    public MappingHolder mappingHolder() {
+        // build each call
+        try {
+            return MappingHolder.buildMappingHolderFromFile(tunnelMappingFilePath());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int idleTimeoutForClient() {
-        return Integer.parseInt(getFromEnvOrPro("idleTimeoutForClient", "60000"));
+        return Integer.parseInt(getFromPropertyOrEnv("idleTimeoutForClient", "60000"));
     }
 
     @Override
@@ -74,58 +91,28 @@ public class EnvProConfiguration implements Configuration {
     }
 
     @Override
-    public String serverBindLocalAddress() {
-        return getFromEnvOrPro("serverBindLocalAddress", "0.0.0.0");
-    }
-
-    @Override
-    public int serverBindLocalPort() {
-        return Integer.parseInt(getFromEnvOrPro("serverBindLocalPort", "80"));
-    }
-
-    @Override
-    public String proxyHost() {
-        return getFromEnvOrPro("proxyHost", null);
-    }
-
-    @Override
-    public int proxyPort() {
-        return Integer.parseInt(getFromEnvOrPro("proxyPort", "8080"));
-    }
-
-    @Override
     public String sslProtocol() {
-        return getFromEnvOrPro("sslProtocol", Constants.DEFAULT_SSL_PROTOCOL);
-    }
-
-    @Override
-    public String sslEndPointHost() {
-        return getFromEnvOrPro("sslEndPointHost", null);
-    }
-
-    @Override
-    public int sslEndPointPort() {
-        return Integer.parseInt(getFromEnvOrPro("sslEndPointPort", "4443"));
+        return getFromPropertyOrEnv("sslProtocol", Constants.DEFAULT_SSL_PROTOCOL);
     }
 
     @Override
     public String keyCertChainFile() {
-        return getFromEnvOrPro("keyCertChainFile", null);
+        return getFromPropertyOrEnv("keyCertChainFile", null);
     }
 
     @Override
     public String keyFile() {
-        return getFromEnvOrPro("keyFile", null);
+        return getFromPropertyOrEnv("keyFile", null);
     }
 
     @Override
     public String keyPassword() {
-        return getFromEnvOrPro("keyPassword", null);
+        return getFromPropertyOrEnv("keyPassword", null);
     }
 
     @Override
     public String trustCertFile() {
-        return getFromEnvOrPro("trustCertFile", null);
+        return getFromPropertyOrEnv("trustCertFile", null);
     }
 
     private static boolean isNullOrEmpty(String string) {

@@ -4,7 +4,7 @@ public class SslEndPointServerLauncher {
 
     public void run() {
         SslEndPointServer server = new SslEndPointServer(new EnvProConfiguration());
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> server.shutdown()));
+        Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
         server.startup();
     }
 

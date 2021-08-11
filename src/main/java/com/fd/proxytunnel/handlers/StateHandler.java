@@ -1,4 +1,4 @@
-package com.fd.proxytunnel;
+package com.fd.proxytunnel.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

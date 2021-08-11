@@ -1,5 +1,10 @@
-package com.fd.proxytunnel;
+package com.fd.proxytunnel.handlers;
 
+import com.fd.proxytunnel.ChannelUtils;
+import com.fd.proxytunnel.Configuration;
+import com.fd.proxytunnel.Connection;
+import com.fd.proxytunnel.Constants;
+import com.fd.proxytunnel.mapping.Address;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -16,13 +21,13 @@ public class ConnectionToProxy implements Connection {
     private final Bootstrap bootstrap = new Bootstrap();
     private final ConnectionFromClient connectionFromClient;
     private final Configuration configuration;
+    private final Address proxyAddress;
     private Channel channel;
 
-    public ConnectionToProxy(ConnectionFromClient connectionFromClient, Configuration configuration) {
-        checkNotNull("connection from client", connectionFromClient);
-        checkNotNull("configuration", configuration);
+    public ConnectionToProxy(ConnectionFromClient connectionFromClient, Configuration configuration, Address proxyAddress) {
         this.connectionFromClient = connectionFromClient;
         this.configuration = configuration;
+        this.proxyAddress = proxyAddress;
     }
 
     /**
@@ -55,13 +60,13 @@ public class ConnectionToProxy implements Connection {
             bootstrap.option(EpollChannelOption.TCP_QUICKACK, true);
         }
         if (Constants.LINUX && configuration.openTcpFastOpenConnect()) {
-            bootstrap.option(EpollChannelOption.TCP_FASTOPEN_CONNECT, true);
+            bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
         }
-        return bootstrap.connect(configuration.proxyHost(), configuration.proxyPort()).addListener(new ChannelFutureListener() {
+        return bootstrap.connect(proxyAddress.host, proxyAddress.port).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
                     channel = channelFuture.channel();
-                    LOG.info("tcp connect to proxy success, {}, {}:{}", channel, configuration.proxyHost(), configuration.proxyPort());
+                    LOG.info("tcp connect to proxy success, {}, {}:{}", channel, proxyAddress.host, proxyAddress.port);
                     // may be client channel has closed before tcp connect to proxy success
                     if (connectionFromClient.isConnectionClosed()) {
                         closeConnection();
@@ -70,7 +75,7 @@ public class ConnectionToProxy implements Connection {
                         sendPendingMessages(channel);
                     }
                 } else {
-                    LOG.info("tcp connect to proxy failed, {}:{}", configuration.proxyHost(), configuration.proxyPort());
+                    LOG.info("tcp connect to proxy failed, {}:{}", proxyAddress.host, proxyAddress.port);
                     connectionFromClient.closeConnection();
                 }
             }

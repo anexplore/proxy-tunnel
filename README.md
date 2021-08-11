@@ -5,7 +5,7 @@
 
 ![intro](img/intro.png)
 
-Fake Proxy 与 Ssl Endpoint 之间使用SSL的双向认证。
+Fake Proxy 与 Ssl Endpoint 之间使用SSL的双向认证, 可同时支持多条链路
 
 * Browser
 
@@ -38,10 +38,7 @@ Fake Proxy 与 Ssl EndPoint 之间需要进行证书的双向认证，因此需�
 
 |配置项|是否必须|默认值|说明|
 |:---:|:----:|:---:|:---:|
-|proxyHost|ssl endpoint必须配置|-|real proxy的host|
-|proxyPort|ssl endpoint必须配置|-|real proxy的port|
-|serverBindLocalAddress|false|0.0.0.0|fake server 和ssl endpoint的绑定地址|
-|serverBindLocalPort|false|80|fake server和ssl endpoint的绑定端口|
+|mappingFile|false|mapping.txt|fake proxy 与 sslendpoint 或者 sslendpoint与real proxy映射关系表|
 |maxConnectionBacklog|false|1000|fake server 和 ssl endpoint的tcp backlog|
 |workerEventGroupNumber|false|cpu逻辑核数|io worker thread number|
 |idleTimeoutForClient|false|60000|idle timeout when no io, ms|
@@ -50,30 +47,40 @@ Fake Proxy 与 Ssl EndPoint 之间需要进行证书的双向认证，因此需�
 |openTcpFastOpen|false|0|是否开启tcp fast open, 1打开; 需要内核参数支持|
 |tcpFastOpenBacklog|false|256|tcp fast open syn-recv队列大小|
 |openTcpFastOpenConnect|false|0|是否开启client tcp fast open, 1打开; 需要内核参数支持|
-|sslProtocol|false|TLSv1.3|tls 协议版本 TLSv1.3 TLSv1.2|
-|sslEndPointHost|fake proxy必须配置|-|ssl endpoint地址|
-|sslEndPointPort|fake proxy必须配置|-|ssl endpoint端口|
+|sslProtocol|false|TLSv1.2|tls 协议版本 TLSv1.3 TLSv1.2|
 |keyCertChainFile|必须|-|fake proxy或者 ssl endpoint的证书|
 |keyFile|必须|-|fake proxy或者 ssl endpoint的证书密钥|
 |keyPassword|否|-|密钥密码|
 |trustCertFile|必须|-|签发证书的根证书CA|
 
+### mapping.txt 文件
+该文件指明fake proxy 与 ssl endpoint 或者 ssl endpoint 与 real proxy的对应关系
+
+文件格式:
+* 每行一个映射关系 localaddress:localport,remoteaddress:remoteport
+* 以#开头的行作为注释
+
 
 ### 启动
 
-* Fake Proxy: 127.0.0.1:8080
-* Ssl Endpoint: sslendpoint.com:3389
-* Real Proxy: http proxy （realproxy.com:3128） 账号密码 user:password
+* Fake Proxy: 127.0.0.1:8080 127.0.0.1:8081
+* Ssl Endpoint: sslendpoint.com:3389 sslendpoint.com:3390
+* Real Proxy: http proxy （realproxy.com:3128, realproxy.com:3129） 账号密码 user:password
 
 #### Browser
 在Browser中配置代理地址为 127.0.0.1:8080 账号密码: user:password
 
 #### Fake Proxy
+修改mapping.txt文件
+~~~shell script
+0.0.0.0:8080,sslendpoint.com:3389
+0.0.0.0:8081,sslendpoint.com:3390
+~~~
+
 修改run_fakeserver.sh
 
 ~~~shell script
--DserverBindLocalAddress=127.0.0.1 -DserverBindLocalPort=8080
--DsslEndPointHost=sslendpoint.com -DsslEndPointPort=3389
+-DmappingFile=mapping.txt
 -DkeyCertChainFile=certs/users/client.crt -DkeyFile=certs/users/client.pk8 -DkeyPassword=123456 
 -DtrustCertFile=certs/ca/ca.crt
 ~~~
@@ -84,11 +91,16 @@ sh run_fakeserver.sh &
 
 
 ### Ssl EndPoint
+修改mapping.txt
+~~~shell script
+0.0.0.0:3389,realproxy.com:3128
+0.0.0.0:3390,realproxy.com:3129
+~~~
+
 修改 run_sslendpoint.sh
 
 ~~~shell script
--DserverBindLocalAddress=0.0.0.0 -DserverBindLocalPort=3389
--DproxyHost=realproxy.com -DproxyPort=3128
+-DmappingFile=mapping.txt
 -DkeyCertChainFile=certs/server/server.crt -DkeyFile=certs/server/server.pk8 -DkeyPassword=123456
 -DtrustCertFile=certs/ca/ca.crt"
 ~~~
@@ -104,19 +116,39 @@ sh run_sslendpoint.sh
 docker pull blueoom/proxytunnel
 ~~~
 
-> 通 -e 传递环境变量来设置serverBindLocalAddress等配置项
+> 通 -e 传递环境变量来设置可配置项 通过-v来映射mapping.txt文件
 
 启动fake server
 
 ~~~shell script
-docker run -d --rm -e DOCKER_MODE=1 -e serverBindLocalAddress=0.0.0.0 -e sslEndPointHost=xxxx -e xxx=xxx -p 8080:8080 blueoom/proxytunnel fakeserver
+docker run -dti -e DOCKER_MODE=1 \
+  --network host \
+  --privileged \
+  -e mappingFile=mapping.txt \
+  -e keyCertChainFile=certs/users/client.crt \
+  -e keyFile=certs/users/client.pk8 \
+  -e keyPassword=123456 \
+  -e trustCertFile=certs/ca/ca.crt \
+  -v /home/proxytunnel/mapping.txt:/home/proxytunnel/mapping.txt \
+  blueoom/proxytunnel fakeserver
 ~~~
 
 启动ssl endpoint
 
 ~~~shell script
-docker run -d --rm -e DOCKER_MODE=1 -e serverBindLocalAddress=0.0.0.0 -e proxyHost=xxxx -e xxx=xxx -p 3389:3389 blueoom/proxytunnel sslendpoint
+docker run -dti -e DOCKER_MODE=1 \
+  --network host \
+  --privileged \
+  -e mappingFile=mapping.txt \
+  -e keyCertChainFile=certs/server/server.crt \
+  -e keyFile=certs/server/server.pk8 \
+  -e keyPassword=123456 \
+  -e trustCertFile=certs/ca/ca.crt \
+  -v /home/proxytunnel/mapping.txt:/home/proxytunnel/mapping.txt \
+  blueoom/proxytunnel sslendpoint
 ~~~
+
+**直接在docker主机部署建议使用docker-compose**
 
 
 ### 没有做的

@@ -10,11 +10,11 @@ public class EnvProConfigurationTest {
     public void testGetFromEnvOrPro() {
         System.setProperty("PTEST", "1");
         assertEquals("get property from system properties",
-                "1", EnvProConfiguration.getFromEnvOrPro("PTEST", null));
+                "1", EnvProConfiguration.getFromPropertyOrEnv("PTEST", null));
         assertNull("do not exist property must return null",
-                EnvProConfiguration.getFromEnvOrPro("DONOT", null));
+                EnvProConfiguration.getFromPropertyOrEnv("DONOT", null));
         assertEquals("do not exist must use default value",
-                "1", EnvProConfiguration.getFromEnvOrPro("DONOT", "1"));
+                "1", EnvProConfiguration.getFromPropertyOrEnv("DONOT", "1"));
     }
 
     @Test

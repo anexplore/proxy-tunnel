@@ -1,5 +1,9 @@
-package com.fd.proxytunnel;
+package com.fd.proxytunnel.handlers;
 
+import com.fd.proxytunnel.ChannelUtils;
+import com.fd.proxytunnel.Configuration;
+import com.fd.proxytunnel.Connection;
+import com.fd.proxytunnel.mapping.Address;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
@@ -18,11 +22,13 @@ public class ConnectionFromClientHandler extends ChannelInboundHandlerAdapter {
     private boolean stopRead = false;
     private final boolean forSslEndPoint;
     private final Configuration configuration;
+    private final Address targetAddress;
     private Connection connectionOut;
 
-    public ConnectionFromClientHandler(Configuration configuration, boolean forSslEndPoint) {
+    public ConnectionFromClientHandler(Configuration configuration, Address targetAddress, boolean forSslEndPoint) {
         this.configuration = configuration;
         this.forSslEndPoint = forSslEndPoint;
+        this.targetAddress = targetAddress;
     }
 
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
@@ -48,9 +54,9 @@ public class ConnectionFromClientHandler extends ChannelInboundHandlerAdapter {
         if (connectionOut == null) {
             ConnectionFromClient cf = new ConnectionFromClient(ctx.channel(), pendingMessages, configuration);
             if (forSslEndPoint) {
-                connectionOut = new ConnectionToProxy(cf, configuration);
+                connectionOut = new ConnectionToProxy(cf, configuration, targetAddress);
             } else {
-                connectionOut = new ConnectionToSslEndPoint(cf, configuration);
+                connectionOut = new ConnectionToSslEndPoint(cf, configuration, targetAddress);
             }
 			connectionOut.connect();
 		}
