@@ -36,21 +36,6 @@ public class EnvProConfiguration implements Configuration {
     }
 
     @Override
-    public boolean openTcpFastOpen() {
-        return Integer.parseInt(getFromPropertyOrEnv("openTcpFastOpen", "0")) == 1;
-    }
-
-    @Override
-    public int tcpFastOpenBacklog() {
-        return Integer.parseInt(getFromPropertyOrEnv("tcpFastOpenBacklog", "256"));
-    }
-
-    @Override
-    public boolean openTcpFastOpenConnect() {
-        return Integer.parseInt(getFromPropertyOrEnv("openTcpFastOpenConnect", "0")) == 1;
-    }
-
-    @Override
     public int mainEventGroupNumber() {
         return 1;
     }

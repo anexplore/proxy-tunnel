@@ -103,9 +103,6 @@ public class SslEndPointServer {
         if (Constants.LINUX) {
             serverBootstrap.childOption(EpollChannelOption.TCP_QUICKACK, true);
         }
-        if (Constants.LINUX && configuration.openTcpFastOpen()) {
-            serverBootstrap.option(EpollChannelOption.TCP_FASTOPEN, configuration.tcpFastOpenBacklog());
-        }
         if (configuration.openNettyLoggingHandler()) {
             serverBootstrap.handler(Constants.DEBUG_LOGGING_HANDLER);
         }

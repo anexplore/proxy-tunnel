@@ -31,21 +31,6 @@ public interface Configuration {
     int connectionTimeoutToRemoteServer();
 
     /**
-     * @return true if open tcp fast open else false
-     */
-    boolean openTcpFastOpen();
-
-    /**
-     * @return tcp_fastopen max pending queue size
-     */
-    int tcpFastOpenBacklog();
-
-    /**
-     * @return true if open tcp fast open connect else false
-     */
-    boolean openTcpFastOpenConnect();
-
-    /**
      * @return main event group number to accept client request
      */
     int mainEventGroupNumber();
